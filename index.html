@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="th" x-data="shop()" @keydown.escape.window="detailOpen=false">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shop — Digital Products | Siraphop Nonpala</title>
+    <meta
+      name="description"
+      content="ดาวน์โหลดสินค้าแบบดิจิทัล (Templates, Scripts, Assets) โดย OLE — Full Stack Developer"
+    />
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#f97316" />
+
+    <!-- Favicon & App Icons -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="../assets/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="../assets/favicon/favicon-16x16.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="../assets/favicon/apple-touch-icon.png"
+    />
+    <link rel="icon" href="../assets/favicon/favicon.ico" />
+    <link rel="manifest" href="../site.webmanifest" />
+
+    <!-- Open Graph / Social Preview -->
+    <meta
+      property="og:title"
+      content="Siraphop Nonpala — Full Stack Developer"
+    />
+    <meta
+      property="og:description"
+      content="OLE | Full Stack Developer • nolowcodes.com"
+    />
+    <meta property="og:image" content="../assets/favicon/favicon.ico" />
+    <meta name="twitter:card" content="summary" />
+
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../tailwind.config.js"></script>
+
+    <!-- Alpine.js -->
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+
+    <!-- Iconify (CDN) -->
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+
+    <!-- Google Identity Services (Google Login) -->
+    <script src="https://accounts.google.com/gsi/client" async></script>
+
+    <link rel="stylesheet" href="./index.css" />
+  </head>
+  <body class="min-h-screen bg-neutral-50 text-neutral-900 antialiased">
+    <main class="mx-auto max-w-6xl px-4 sm:px-6 py-8 sm:py-12 lg:py-16">
+      <!-- Header -->
+      <header class="mb-6 sm:mb-10">
+        <div class="flex flex-wrap items-center gap-4">
+          <a
+            href="./"
+            class="flex items-center gap-3 shrink-0"
+            title="กลับหน้าแรก"
+          >
+            <img
+              src="../assets/images/logo.png"
+              class="first-letter:h-10 w-10 sm:h-12 sm:w-12 rounded-full ring-2 ring-brand/20 object-cover"
+              alt="OLE"
+              @error="onImgError($event)"
+            />
+            <div>
+              <h1 class="text-lg sm:text-xl font-semibold tracking-tight">
+                OLE Digital Shop
+              </h1>
+              <p class="text-[11px] sm:text-xs text-neutral-500">
+                Templates • Scripts • Assets
+              </p>
+            </div>
+          </a>
+
+          <!-- Login / User -->
+          <div
+            x-show="GOOGLE_CLIENT_ID"
+            class="ml-auto flex w-full sm:w-auto items-center gap-2"
+          >
+            <!-- Not authed: Google icon button will render here -->
+            <!-- HTML -->
+            <template x-if="!user.isAuthed">
+              <div
+                x-ref="googleBtn"
+                x-init="$nextTick(() => setupGoogle())"
+              ></div>
+            </template>
+
+            <!-- Authed: show avatar + name + email with dropdown -->
+            <template x-if="user.isAuthed">
+              <div
+                class="relative"
+                x-data="{ open: false }"
+                @click.outside="open=false"
+              >
+                <!-- วงกลมจริง: ปุ่มเป็นสี่เหลี่ยมจัตุรัส + rounded-full + overflow-hidden -->
+                <button
+                  @click="open = !open"
+                  class="relative size-9 rounded-full border overflow-hidden focus:outline-none focus:ring-2 focus:ring-brand/30"
+                  aria-label="บัญชีผู้ใช้"
+                >
+                  <img
+                    :src="user.picture"
+                    alt="avatar"
+                    class="absolute inset-0 h-full w-full object-cover"
+                    @error="onImgError($event)"
+                  />
+                  <span class="sr-only" x-text="user.email || user.name"></span>
+                </button>
+
+                <div
+                  x-show="open"
+                  x-transition
+                  class="absolute right-0 mt-2 w-56 rounded-lg border bg-white shadow-lg p-2"
+                >
+                  <div class="px-3 py-2 text-xs text-neutral-600">
+                    <div
+                      class="font-medium text-neutral-900"
+                      x-text="user.name"
+                    ></div>
+                    <div class="truncate" x-text="user.email"></div>
+                  </div>
+                  <button
+                    @click="logout(); open=false"
+                    class="w-full text-left px-3 py-2 text-white rounded-xl text-sm bg-red-600 hover:bg-red-500"
+                  >
+                    ออกจากระบบ
+                  </button>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </header>
+
+      <!-- Notice: Digital only -->
+      <div
+        class="mb-8 rounded-xl border border-brand/20 bg-white p-4 sm:p-5 text-sm text-neutral-700 shadow-sm"
+      >
+        <div class="flex items-start gap-3">
+          <span
+            class="animation mt-0.5 inline-flex flex-none shrink-0 items-center justify-center size-5 rounded-full bg-brand text-white text-[10px] leading-none"
+          ></span>
+          <p class="leading-relaxed">
+            <strong>Digital Products เท่านั้น:</strong>
+            จ่ายเสร็จดาวน์โหลดได้ทันที • ไม่มีค่าขนส่ง •
+            ได้อัปเดตเวอร์ชันถัดไปฟรีภายใต้ไลเซนส์ที่เลือก
+          </p>
+        </div>
+      </div>
+
+      <!-- Product List -->
+      <section>
+        <div class="flex items-center justify-between mb-4">
+          <div class="relative max-w-3xl">
+            <input
+              x-model="filters.q"
+              type="search"
+              placeholder="ค้นหาสินค้า…"
+              class="h-10 w-full rounded-lg border border-neutral-200 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
+            />
+            <iconify-icon
+              icon="lucide:search"
+              class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 h-4 w-4"
+            ></iconify-icon>
+          </div>
+
+          <div class="hidden sm:flex items-center gap-3 text-sm">
+            <label class="flex items-center gap-2"
+              ><input type="checkbox" x-model="showOnlyFree" class="h-4 w-4" />
+              ฟรีเท่านั้น</label
+            >
+            <label class="flex items-center gap-2"
+              ><input
+                type="checkbox"
+                x-model="showOnlyOnSale"
+                class="h-4 w-4"
+              />
+              ลดราคา</label
+            >
+            <select
+              title="กรองข้อมูล"
+              x-model="filters.category"
+              class="h-10 rounded-lg border border-neutral-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
+            >
+              <option value="all">ทุกหมวด</option>
+              <option>Template</option>
+              <option>Script</option>
+              <option>Asset</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- mobile toggles -->
+        <div class="sm:hidden mb-4 flex items-center gap-4 text-sm">
+          <label class="flex items-center gap-2"
+            ><input type="checkbox" x-model="showOnlyFree" class="h-4 w-4" />
+            ฟรี</label
+          >
+          <label class="flex items-center gap-2"
+            ><input type="checkbox" x-model="showOnlyOnSale" class="h-4 w-4" />
+            ลดราคา</label
+          >
+          <select
+            title="กรองข้อมูล"
+            x-model="filters.category"
+            class="h-10 rounded-lg border border-neutral-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
+          >
+            <option value="all">ทุกหมวด</option>
+            <option>Template</option>
+            <option>Script</option>
+            <option>Asset</option>
+          </select>
+        </div>
+
+        <!-- Page size + summary -->
+        <div
+          class="mb-3 flex items-center justify-between text-sm text-neutral-600"
+        >
+          <div class="flex items-center gap-2">
+            <span>แสดงต่อหน้า:</span>
+            <select
+              title="จำนวนรายการต่อหน้า"
+              x-model.number="pageSize"
+              class="h-9 rounded-lg border border-neutral-200 px-2 focus:outline-none focus:ring-2 focus:ring-brand/30"
+            >
+              <option :value="6">6</option>
+              <option :value="9">9</option>
+              <option :value="12">12</option>
+            </select>
+          </div>
+          <div>
+            <template x-if="filtered.length > 0"
+              ><span x-text="pageSummary"></span
+            ></template>
+            <template x-if="filtered.length === 0"
+              ><span>ไม่พบสินค้า</span></template
+            >
+          </div>
+        </div>
+
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <template
+            x-for="(item, index) in paginated"
+            :key="item.slug + '-' + index"
+          >
+            <article
+              class="border border-neutral-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition bg-white flex flex-col"
+            >
+              <div class="relative">
+                <img
+                  :src="item.image || 'https://placehold.co/600x400?text=No+Image'"
+                  :alt="item.name"
+                  loading="lazy"
+                  class="w-full h-44 object-cover"
+                  @error="onImgError($event)"
+                />
+                <template x-if="item.price === 0">
+                  <span
+                    class="absolute left-3 top-3 rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-medium text-white"
+                    >FREE</span
+                  >
+                </template>
+                <template x-if="item.salePrice && item.salePrice < item.price">
+                  <span
+                    class="absolute right-3 top-3 rounded-full bg-rose-600 px-2 py-0.5 text-xs font-medium text-white"
+                    >SALE</span
+                  >
+                </template>
+              </div>
+              <div class="p-4 flex flex-col gap-2 grow">
+                <div class="flex items-center justify-between gap-2">
+                  <h3 class="font-medium" x-text="item.name"></h3>
+                  <span
+                    class="rounded-md border px-2 py-0.5 text-xs text-neutral-600"
+                    x-text="item.category"
+                  ></span>
+                </div>
+                <p
+                  class="text-sm text-neutral-600 line-clamp-2"
+                  x-text="item.description"
+                ></p>
+                <div
+                  class="flex flex-wrap items-center gap-2 text-xs text-neutral-500"
+                >
+                  <span x-text="`v${item.version}`"></span>
+                  <span>•</span>
+                  <span x-text="item.formats.join(', ')"></span>
+                  <span>•</span>
+                  <span x-text="`${item.fileSizeMB} MB`"></span>
+                </div>
+                <div class="mt-auto flex items-end justify-between">
+                  <div class="flex flex-col">
+                    <template x-if="item.price > 0">
+                      <div class="leading-none">
+                        <span
+                          class="text-brand font-semibold text-base"
+                          x-text="displayPrice(item)"
+                        ></span>
+                        <template
+                          x-if="item.salePrice && item.salePrice < item.price"
+                        >
+                          <span
+                            class="ml-2 text-xs text-neutral-400 line-through"
+                            x-text="`฿${item.price}`"
+                          ></span>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="item.price === 0"
+                      ><span class="text-emerald-700 font-semibold"
+                        >ฟรี</span
+                      ></template
+                    >
+                    <span class="text-[11px] text-neutral-500 mt-1"
+                      >อัปเดตล่าสุด
+                      <span x-text="formatDate(item.updatedAt)"></span
+                    ></span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button
+                      @click="openDetail(item)"
+                      class="rounded-lg border border-neutral-200 px-3 py-1 text-sm hover:bg-neutral-50"
+                    >
+                      รายละเอียด
+                    </button>
+                    <template x-if="item.price === 0">
+                      <button
+                        @click="download(item)"
+                        class="rounded-lg bg-brand px-3 py-1 text-sm text-white hover:bg-brand-600"
+                      >
+                        ดาวน์โหลด
+                      </button>
+                    </template>
+                    <template x-if="item.price > 0">
+                      <button
+                        @click="isInCart(item) ? removeFromCartBySlug(item.slug) : addToCart(item)"
+                        class="rounded-lg px-3 py-1 text-sm text-white"
+                        :class="isInCart(item) ? 'bg-rose-600 hover:bg-rose-700' : 'bg-brand hover:bg-brand-600'"
+                      >
+                        <span
+                          x-text="isInCart(item) ? 'ลบออกจากตะกร้า' : 'เพิ่มลงตะกร้า'"
+                        ></span>
+                      </button>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </template>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
+          <div class="text-sm text-neutral-600">
+            หน้า <span class="font-medium" x-text="page"></span>/<span
+              x-text="totalPages"
+            ></span>
+          </div>
+          <nav class="flex items-center gap-1" aria-label="Pagination">
+            <button
+              @click="prevPage"
+              :disabled="page<=1"
+              class="h-9 px-3 rounded-lg border text-sm disabled:opacity-40"
+            >
+              ก่อนหน้า
+            </button>
+            <template x-for="p in pageNumbers" :key="p">
+              <button
+                @click="goPage(p)"
+                class="h-9 min-w-9 px-3 rounded-lg border text-sm"
+                :class="p===page ? 'bg-brand text-white border-brand' : 'hover:bg-neutral-50'"
+                x-text="p"
+              ></button>
+            </template>
+            <button
+              @click="nextPage"
+              :disabled="page>=totalPages"
+              class="h-9 px-3 rounded-lg border text-sm disabled:opacity-40"
+            >
+              ถัดไป
+            </button>
+          </nav>
+        </div>
+      </section>
+    </main>
+
+    <!-- Floating Cart Icon -->
+    <button
+      :disabled="cart.length === 0"
+      title="เปิดตะกร้าสินค้า"
+      @click="cartOpen = true"
+      class="fixed opacity-50 bottom-4 right-4 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-brand text-white shadow-lg hover:bg-brand-600 focus:outline-none focus:ring-4 focus:ring-brand/30"
+      :class="{'opacity-100': cart.length > 0}"
+    >
+      <iconify-icon icon="lucide:shopping-cart"></iconify-icon>
+      <span
+        x-show="cart.length > 0"
+        x-text="cart.length"
+        class="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 text-xs font-bold leading-none text-white bg-red-600 border-2 border-white rounded-full shadow"
+      ></span>
+    </button>
+
+    <!-- Detail / Purchase Drawer -->
+    <div
+      x-show="detailOpen"
+      x-transition.opacity
+      class="fixed inset-0 z-40 bg-black/50"
+    ></div>
+    <aside
+      x-show="detailOpen"
+      x-transition
+      class="fixed right-0 top-0 z-50 h-full w-full max-w-xl overflow-y-auto border-l border-neutral-200 bg-white p-6 safe-bottom"
+    >
+      <div class="flex items-start gap-4">
+        <img
+          :src="active?.image"
+          class="h-16 w-16 rounded-lg border object-cover"
+          alt=""
+          @error="onImgError($event)"
+        />
+        <div class="grow">
+          <h3 class="text-lg font-semibold" x-text="active?.name"></h3>
+          <p class="text-sm text-neutral-600" x-text="active?.description"></p>
+          <div
+            class="mt-2 flex flex-wrap items-center gap-2 text-xs text-neutral-500"
+          >
+            <span
+              class="rounded border px-2 py-0.5"
+              x-text="active?.category"
+            ></span>
+            <span>v<span x-text="active?.version"></span></span>
+            <span>•</span>
+            <span x-text="active?.formats?.join(', ')"></span>
+            <span>•</span>
+            <span x-text="`${active?.fileSizeMB} MB`"></span>
+          </div>
+        </div>
+        <button
+          @click="detailOpen=false"
+          class="rounded-full border px-3 py-1 text-sm"
+        >
+          ปิด
+        </button>
+      </div>
+
+      <div class="mt-6 grid gap-6">
+        <!-- License Picker (dynamic per product) -->
+        <section class="rounded-xl border border-neutral-200 p-4">
+          <h4 class="font-medium mb-3">เลือกไลเซนส์</h4>
+          <div class="grid gap-3 sm:grid-cols-3">
+            <template x-for="lic in availableLicensesFor(active)" :key="lic">
+              <label
+                class="flex cursor-pointer items-start gap-3 rounded-lg border p-3 hover:bg-neutral-50"
+                :class="license===lic ? 'border-brand' : ''"
+              >
+                <input
+                  type="radio"
+                  class="mt-1"
+                  :value="lic"
+                  x-model="license"
+                  @change="setItemLicense(active.slug, license)"
+                />
+                <div class="text-sm">
+                  <div
+                    class="font-medium"
+                    x-text="LICENSES_META[lic]?.label || lic"
+                  ></div>
+                  <div
+                    class="text-neutral-600"
+                    x-text="LICENSES_META[lic]?.desc || ''"
+                  ></div>
+                </div>
+              </label>
+            </template>
+          </div>
+          <p class="mt-3 text-sm">
+            ราคา:
+            <span
+              class="font-semibold text-brand"
+              x-text="active ? displayPriceWithSelected(active) : ''"
+            ></span>
+          </p>
+        </section>
+
+        <!-- Changelog / Files -->
+        <section class="rounded-xl border border-neutral-200 p-4">
+          <h4 class="font-medium mb-3">ไฟล์ที่รวมมา</h4>
+          <ul class="list-disc pl-5 text-sm text-neutral-700">
+            <template x-for="f in (active?.files || [])" :key="f.name">
+              <li>
+                <span x-text="f.name"></span>
+                <span class="text-neutral-500" x-text="`(${f.type})`"></span>
+              </li>
+            </template>
+          </ul>
+          <details class="mt-4 text-sm">
+            <summary class="cursor-pointer select-none">Changelog</summary>
+            <ul class="mt-2 list-disc pl-5 text-neutral-600">
+              <template x-for="c in (active?.changelog || [])" :key="c">
+                <li x-text="c"></li>
+              </template>
+            </ul>
+          </details>
+        </section>
+
+        <!-- Actions -->
+        <div class="flex flex-wrap items-center gap-3">
+          <a
+            :href="active?.demoUrl"
+            target="_blank"
+            rel="noopener"
+            class="rounded-lg border border-neutral-200 px-4 py-2 text-sm hover:bg-neutral-50"
+            >ดูเดโม</a
+          >
+          <template x-if="active && active.price === 0">
+            <button
+              @click="download(active)"
+              class="rounded-lg bg-brand px-4 py-2 text-sm text-white hover:bg-brand-600"
+            >
+              ดาวน์โหลดฟรี
+            </button>
+          </template>
+          <template x-if="active && active.price > 0">
+            <div class="flex items-center gap-2">
+              <button
+                @click="isInCart(active) ? removeFromCartBySlug(active.slug) : addToCart(active)"
+                class="rounded-lg px-4 py-2 text-sm text-white"
+                :class="isInCart(active) ? 'bg-rose-600 hover:bg-rose-700' : 'bg-brand hover:bg-brand-600'"
+              >
+                <span
+                  x-text="isInCart(active) ? 'ลบออกจากตะกร้า' : 'เพิ่มลงตะกร้า'"
+                ></span>
+              </button>
+            </div>
+          </template>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Simple Cart Modal -->
+    <div
+      x-show="cartOpen"
+      x-transition.opacity
+      class="fixed inset-0 z-40 bg-black/50"
+    ></div>
+    <div
+      x-show="cartOpen"
+      x-transition
+      class="fixed left-1/2 top-16 sm:top-20 z-50 w-[95vw] sm:w-[92vw] max-w-lg -translate-x-1/2 rounded-xl border border-neutral-200 bg-white p-5 shadow-2xl safe-bottom"
+    >
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold">ตะกร้าสินค้า</h3>
+        <button
+          @click="cartOpen=false"
+          class="rounded-full border px-3 py-1 text-sm"
+        >
+          ปิด
+        </button>
+      </div>
+
+      <div class="mt-4 divide-y">
+        <template x-if="cart.length === 0">
+          <p class="py-6 text-center text-sm text-neutral-500">
+            ยังไม่มีสินค้า
+          </p>
+        </template>
+        <!-- Cart items (แสดงรายละเอียดไลเซนส์ใต้ select) -->
+        <template x-for="(c, i) in cart" :key="c.slug">
+          <div class="flex items-start gap-3 py-3">
+            <img
+              :src="c.image"
+              class="h-12 w-12 rounded border object-cover"
+              alt=""
+              @error="onImgError($event)"
+            />
+            <div class="grow">
+              <div class="text-sm font-medium" x-text="c.name"></div>
+
+              <!-- เลือกไลเซนส์รายชิ้น (เฉพาะที่สินค้า ‘รองรับ’) -->
+              <div class="mt-1">
+                <label class="text-xs text-neutral-500 mr-2">ไลเซนส์:</label>
+                <select
+                  x-model="c.license"
+                  @change="setItemLicense(c.slug, c.license)"
+                  class="rounded border border-neutral-200 px-2 py-1 text-xs"
+                  title="เลือกไลเซนส์สำหรับสินค้าชิ้นนี้"
+                >
+                  <template x-for="lic in availableLicensesFor(c)" :key="lic">
+                    <option
+                      :value="lic"
+                      x-text="LICENSES_META[lic]?.label || lic"
+                    ></option>
+                  </template>
+                </select>
+
+                <!-- รายละเอียดของไลเซนส์ที่เลือก -->
+                <div class="mt-1 text-[11px] text-neutral-500">
+                  <span class="uppercase" x-text="c.license"></span>
+                  <span class="mx-1">—</span>
+                  <span x-text="licenseDesc(c)"></span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="text-sm font-semibold text-brand"
+              x-text="displayPrice(c)"
+            ></div>
+            <button
+              @click="removeFromCart(i)"
+              class="ml-2 text-xs text-neutral-500 hover:underline"
+            >
+              ลบ
+            </button>
+          </div>
+        </template>
+      </div>
+
+      <!-- Coupon Fancy UI -->
+      <div class="mt-4">
+        <label class="block text-sm font-medium mb-2">คูปองส่วนลด</label>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <div class="relative grow">
+            <input
+              type="text"
+              x-model.trim="coupon.code"
+              @keydown.enter.prevent="applyCoupon()"
+              placeholder="เช่น OLE10"
+              class="w-full rounded-lg border border-neutral-200 pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
+              :disabled="coupon.applied"
+            />
+            <iconify-icon
+              icon="lucide:tag"
+              class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 h-4 w-4"
+            ></iconify-icon>
+          </div>
+
+          <template x-if="!coupon.applied">
+            <button
+              @click="applyCoupon()"
+              class="rounded-lg bg-brand px-4 py-2 text-sm text-white hover:bg-brand-600"
+            >
+              ใช้คูปอง
+            </button>
+          </template>
+          <template x-if="coupon.applied">
+            <button
+              @click="removeCoupon()"
+              class="rounded-lg border border-neutral-200 px-4 py-2 text-sm hover:bg-neutral-50"
+            >
+              ลบคูปอง
+            </button>
+          </template>
+        </div>
+
+        <!-- status -->
+        <template x-if="coupon.error"
+          ><p class="mt-2 text-xs text-rose-600" x-text="coupon.error"></p
+        ></template>
+        <template x-if="coupon.applied">
+          <div
+            class="mt-2 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs text-emerald-700"
+          >
+            <span class="text-base">✔</span>
+            <span x-text="`ใช้คูปอง ${coupon.codeApplied} แล้ว`"></span>
+            <span class="text-neutral-400">•</span>
+            <span x-text="`ส่วนลด ${formatBaht(discountAmount())}`"></span>
+          </div>
+        </template>
+      </div>
+
+      <!-- Totals -->
+      <div class="mt-4 grid gap-1 text-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-neutral-600">ยอดรวม (Subtotal)</span
+          ><span x-text="formatBaht(subtotal())"></span>
+        </div>
+        <template x-if="discountAmount() > 0">
+          <div class="flex items-center justify-between text-emerald-700">
+            <span>ส่วนลด</span
+            ><span>- <span x-text="formatBaht(discountAmount())"></span></span>
+          </div>
+        </template>
+        <div class="flex items-center justify-between font-semibold">
+          <span class="text-neutral-800">ยอดสุทธิ</span
+          ><span class="text-brand" x-text="cartTotal()"></span>
+        </div>
+      </div>
+
+      <div
+        class="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2"
+      >
+        <button
+          @click="checkoutOpen=true"
+          class="rounded-lg bg-brand px-4 py-2 text-sm text-white hover:bg-brand-600"
+          :disabled="cart.length===0"
+        >
+          ชำระเงิน
+        </button>
+      </div>
+    </div>
+
+    <!-- Checkout Backdrop -->
+    <div
+      x-show="checkoutOpen"
+      x-transition.opacity
+      class="fixed inset-0 z-40 bg-black/50"
+    ></div>
+
+    <!-- Checkout Modal -->
+    <div
+      x-show="checkoutOpen"
+      x-transition
+      class="fixed left-1/2 top-12 sm:top-16 z-50 w-[95vw] sm:w-[92vw] max-w-xl -translate-x-1/2 rounded-xl border border-neutral-200 bg-white p-5 shadow-2xl safe-bottom"
+      @keydown.enter.prevent="submitCheckout()"
+    >
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold">ชำระเงิน</h3>
+        <button
+          @click="checkoutOpen=false"
+          class="rounded-full border px-3 py-1 text-sm"
+        >
+          ปิด
+        </button>
+      </div>
+
+      <!-- สรุปรายการ -->
+      <div class="mt-4 rounded-lg border border-neutral-200">
+        <div class="px-4 py-2 border-b text-sm font-medium">สรุปรายการ</div>
+        <div class="max-h-44 sm:max-h-56 overflow-y-auto divide-y">
+          <template x-for="it in cart" :key="it.slug">
+            <div class="flex items-start gap-3 px-4 py-3">
+              <img
+                :src="it.image"
+                class="h-10 w-10 rounded border object-cover"
+                alt=""
+                @error="onImgError($event)"
+              />
+              <div class="grow text-sm">
+                <div class="font-medium" x-text="it.name"></div>
+                <div class="text-xs text-neutral-500">
+                  ไลเซนส์:
+                  <span
+                    class="uppercase"
+                    x-text="it.license || 'personal'"
+                  ></span>
+                </div>
+              </div>
+              <div
+                class="text-sm font-semibold text-brand"
+                x-text="displayPrice(it)"
+              ></div>
+            </div>
+          </template>
+        </div>
+        <div class="px-4 py-3 grid gap-1 text-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-neutral-600">ยอดรวม (Subtotal)</span
+            ><span x-text="formatBaht(subtotal())"></span>
+          </div>
+          <template x-if="discountAmount() > 0">
+            <div class="flex items-center justify-between text-emerald-700">
+              <span>ส่วนลด</span
+              ><span
+                >- <span x-text="formatBaht(discountAmount())"></span
+              ></span>
+            </div>
+          </template>
+          <div class="flex items-center justify-between font-semibold">
+            <span class="text-neutral-800">ยอดสุทธิ</span
+            ><span class="text-brand" x-text="cartTotal()"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ฟอร์มข้อมูลผู้ซื้อ -->
+      <form class="mt-5 grid gap-4" @submit.prevent="submitCheckout()">
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label class="block text-sm font-medium"
+              >ชื่อ-นามสกุล <span class="text-rose-600">*</span></label
+            >
+            <input
+              type="text"
+              x-model.trim="checkoutForm.name"
+              class="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
+              placeholder="ชื่อ-นามสกุล"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium">เบอร์โทร (ถ้ามี)</label>
+            <input
+              type="tel"
+              x-model.trim="checkoutForm.phone"
+              class="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
+              placeholder="08x-xxx-xxxx"
+              inputmode="tel"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium"
+            >อีเมล <span class="text-rose-600">*</span></label
+          >
+          <input
+            type="email"
+            x-model.trim="checkoutForm.email"
+            class="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
+            placeholder="you@example.com"
+            required
+          />
+          <p class="mt-1 text-xs text-neutral-500">
+            เราจะส่งลิงก์ดาวน์โหลดไปที่อีเมลนี้
+          </p>
+        </div>
+
+        <!-- อัปโหลดสลิป -->
+        <div>
+          <label class="block text-sm font-medium"
+            >อัปโหลดสลิป/หลักฐานการชำระเงิน</label
+          >
+          <div
+            class="mt-1 flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-neutral-300 px-4 py-6 text-center"
+            @dragover.prevent
+            @drop.prevent=" if ($event.dataTransfer.files?.length) handleSlip($event.dataTransfer.files[0]) "
+          >
+            <input
+              title="อัปโหลดสลิป/หลักฐานการชำระเงิน"
+              type="file"
+              class="hidden"
+              x-ref="fileSlip"
+              @change="handleSlip($event.target.files[0])"
+              accept="image/*,.pdf"
+            />
+            <button
+              type="button"
+              class="rounded-md border px-3 py-1.5 text-sm hover:bg-neutral-50"
+              @click="$refs.fileSlip.click()"
+            >
+              เลือกไฟล์
+            </button>
+            <p class="text-xs text-neutral-500">
+              รองรับรูปภาพหรือ PDF ขนาดไม่เกิน ~10MB
+            </p>
+
+            <template x-if="checkoutForm.fileSlip">
+              <div class="mt-3 w-full">
+                <div class="flex items-center justify-between text-sm">
+                  <span
+                    class="truncate"
+                    x-text="checkoutForm.fileSlip?.name"
+                  ></span>
+                  <button
+                    type="button"
+                    class="text-xs text-rose-600 hover:underline"
+                    @click="removeSlip()"
+                  >
+                    ลบไฟล์
+                  </button>
+                </div>
+                <template x-if="slipPreviewUrl">
+                  <img
+                    :src="slipPreviewUrl"
+                    alt="Slip preview"
+                    class="mt-2 max-h-40 w-auto rounded border object-contain"
+                    @error="onImgError($event)"
+                  />
+                </template>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- ปุ่มส่งฟอร์ม -->
+        <div class="flex items-center justify-end gap-2">
+          <button
+            type="button"
+            class="rounded-lg border border-neutral-200 px-3 py-2 text-sm hover:bg-neutral-50"
+            @click="checkoutOpen=false"
+          >
+            ย้อนกลับ
+          </button>
+          <button
+            type="submit"
+            :disabled="!isCheckoutValid"
+            class="rounded-lg bg-brand px-4 py-2 text-sm text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            ส่งคำสั่งซื้อ
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      const shop = () => ({
+        /* ---------- UI State ---------- */
+        filters: { q: "", category: "all" },
+        showOnlyFree: false,
+        showOnlyOnSale: false,
+        cartOpen: false,
+        detailOpen: false,
+        active: null,
+
+        /* License state (selected in drawer) */
+        license: "personal", // 'personal' | 'commercial' | 'extended'
+        selectedLicenses: {}, // { [slug]: 'personal'|'commercial'|'extended' }
+        LICENSE_PRICING_MAP: { personal: 1, commercial: 3, extended: 5 },
+        LICENSES_META: {
+          personal: {
+            label: "Personal",
+            desc: "ใช้ส่วนตัว/โปรเจกต์ส่วนตัว (1 ที่นั่ง)",
+          },
+          commercial: {
+            label: "Commercial",
+            desc: "ใช้เชิงพาณิชย์/ลูกค้า (สูงสุด 5 ที่นั่ง)",
+          },
+          extended: {
+            label: "Extended",
+            desc: "สเกลใหญ่/แจกจ่ายซ้ำ/รวมในสินค้า",
+          },
+        },
+
+        /* Pagination */
+        page: 1,
+        pageSize: 6,
+
+        /* Coupon */
+        coupon: { code: "", applied: false, codeApplied: "", error: "" },
+
+        /* Checkout */
+        checkoutOpen: false,
+        checkoutForm: { name: "", phone: "", email: "", fileSlip: null },
+        slipPreviewUrl: "",
+
+        /* Auth (Google) */
+        user: { isAuthed: false, email: "", name: "", picture: "" },
+        GOOGLE_CLIENT_ID: "", // TODO: ใส่ Client ID จริง
+        STORAGE_KEY: "shopUser",
+
+        /* ---------- Google Login ---------- */
+        setupGoogle() {
+          const init = () => {
+            if (!this.GOOGLE_CLIENT_ID) return false;
+            if (!window.google?.accounts?.id) return false;
+            google.accounts.id.initialize({
+              client_id: this.GOOGLE_CLIENT_ID,
+              callback: (res) => this.onGoogleCredential(res),
+              auto_select: false,
+              ux_mode: "popup",
+            });
+            if (this.$refs.googleBtn) {
+              google.accounts.id.renderButton(this.$refs.googleBtn, {
+                // ให้เหมือนตัวอย่างของ Google
+                theme: "outline",
+                size: "large",
+                shape: "pill", // pill | square
+                type: "standard",
+                // ถ้าอยากเป็นไอคอนล้วน ใช้: type: "icon"
+              });
+            }
+            google.accounts.id.prompt(); // เหมือนตัวอย่าง: แสดง One Tap
+            return true;
+          };
+          if (!init()) {
+            const t = setInterval(() => {
+              if (init()) clearInterval(t);
+            }, 250);
+            setTimeout(() => clearInterval(t), 10000);
+          }
+        },
+
+        _decodeJwtPayload(credential) {
+          const base64 = credential
+            .split(".")[1]
+            .replace(/-/g, "+")
+            .replace(/_/g, "/");
+          const json = decodeURIComponent(
+            atob(base64)
+              .split("")
+              .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+              .join("")
+          );
+          return JSON.parse(json);
+        },
+
+        saveUser() {
+          try {
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.user));
+          } catch {}
+        },
+        loadUser() {
+          try {
+            const raw = localStorage.getItem(this.STORAGE_KEY);
+            if (!raw) return;
+            const u = JSON.parse(raw);
+            this.user = {
+              isAuthed: !!u.isAuthed,
+              email: u.email || "",
+              name: u.name || "",
+              picture: u.picture || "",
+            };
+            if (this.user.isAuthed) {
+              if (!this.checkoutForm.name)
+                this.checkoutForm.name = this.user.name || "";
+              if (!this.checkoutForm.email)
+                this.checkoutForm.email = this.user.email || "";
+            }
+          } catch {}
+        },
+
+        onGoogleCredential({ credential }) {
+          try {
+            const payload = this._decodeJwtPayload(credential);
+            this.user.isAuthed = true;
+            this.user.email = payload.email || "";
+            this.user.name = payload.name || payload.given_name || "";
+            this.user.picture = payload.picture || "";
+
+            // Autofill checkout
+            this.checkoutForm.name = this.user.name || "";
+            this.checkoutForm.email = this.user.email || "";
+
+            this.saveUser();
+            // NOTE: ในระบบจริง ควรส่ง credential ไป verify ที่ backend เพื่อออก session ฝั่งเซิร์ฟเวอร์
+          } catch (e) {
+            console.error("Invalid Google credential", e);
+            alert("ไม่สามารถเข้าสู่ระบบด้วย Google ได้");
+          }
+        },
+
+        logout() {
+          this.user = { isAuthed: false, email: "", name: "", picture: "" };
+          try {
+            google.accounts.id.disableAutoSelect();
+          } catch (_) {}
+          try {
+            localStorage.removeItem(this.STORAGE_KEY);
+          } catch {}
+        },
+
+        /* ---------- Helpers for licenses ---------- */
+        availableLicensesFor(item) {
+          if (!item) return ["personal", "commercial", "extended"];
+          const l = item.licenses || item.availableLicenses || null;
+          if (Array.isArray(l) && l.length) return l;
+          if (l && typeof l === "object")
+            return Object.keys(l).filter((k) => !!l[k]);
+          return ["personal", "commercial", "extended"]; // default: all
+        },
+        getSafeLicense(item, desired) {
+          const allowed = this.availableLicensesFor(item);
+          return allowed.includes(desired) ? desired : allowed[0];
+        },
+        licenseDesc(item) {
+          const key = item?.license || "personal";
+          return this.LICENSES_META[key]?.desc || "";
+        },
+        getItemLicense(item) {
+          const fromSelected = this.selectedLicenses[item.slug];
+          const inCart = this.cart.find((c) => c.slug === item.slug)?.license;
+          const wanted = fromSelected || inCart || "personal";
+          return this.getSafeLicense(item, wanted);
+        },
+        setItemLicense(slug, lic) {
+          const product =
+            this.products.find((p) => p.slug === slug) || this.active;
+          const finalLic = this.getSafeLicense(product, lic);
+          this.selectedLicenses[slug] = finalLic;
+          const inCart = this.cart.find((c) => c.slug === slug);
+          if (inCart) inCart.license = finalLic;
+        },
+
+        onImgError(e) {
+          e.target.onerror = null;
+          e.target.src = "https://placehold.co/600x400/png?text=No+Image";
+        },
+
+        /* ---------- Data: products ---------- */
+        products: [
+          {
+            slug: "alpine-starter-kit",
+            name: "Alpine.js Starter Kit",
+            description:
+              "โครง Starter แบบ Minimal: Tailwind + Alpine + Vite พร้อมตัวอย่าง component",
+            price: 290,
+            salePrice: 190,
+            formats: ["ZIP", "MD"],
+            fileSizeMB: 2.1,
+            version: "1.3.0",
+            updatedAt: "2025-07-30",
+            category: "Template",
+            image: "../assets/images/products/digital_kit.png",
+            demoUrl: "https://example.com/demo/alpine-starter",
+            files: [
+              { name: "source.zip", type: "ZIP" },
+              { name: "README.md", type: "MD" },
+            ],
+            changelog: [
+              "เพิ่ม UI ตัวอย่าง",
+              "ปรับสคริปต์ build",
+              "แก้บั๊ก path ใน Windows",
+            ],
+            licenses: ["personal", "commercial"], // รองรับ 2 แบบ
+          },
+          {
+            slug: "express-sse-broadcast",
+            name: "Express SSE Broadcast",
+            description:
+              "โค้ดตัวอย่าง Server-Sent Events สำหรับระบบป้ายประชาสัมพันธ์เรียลไทม์",
+            price: 350,
+            salePrice: null,
+            formats: ["ZIP"],
+            fileSizeMB: 0.6,
+            version: "0.9.2",
+            updatedAt: "2025-08-02",
+            category: "Script",
+            image: "../assets/images/products/digital_sse.png",
+            demoUrl: "https://example.com/demo/express-sse",
+            files: [{ name: "sse-server.zip", type: "ZIP" }],
+            changelog: [
+              "เพิ่มตัวอย่าง client auto-reconnect",
+              "เพิ่ม README (TH/EN)",
+            ],
+            licenses: ["personal", "commercial", "extended"], // ครบ 3 แบบ
+          },
+          {
+            slug: "certificate-templates-pack",
+            name: "Certificate Templates Pack",
+            description:
+              "รวมเทมเพลตเกียรติบัตร 6 แบบ • รองรับ PDF/PNG • พร้อมลายเซ็นตัวอย่าง",
+            price: 0,
+            salePrice: 0,
+            formats: ["PDF", "PNG"],
+            fileSizeMB: 38,
+            version: "2.0.0",
+            updatedAt: "2025-08-08",
+            category: "Asset",
+            image: "../assets/images/products/digital_cert_pack.png",
+            demoUrl: "https://example.com/demo/cert-pack",
+            files: [{ name: "templates.zip", type: "ZIP" }],
+            changelog: ["เพิ่มเวอร์ชันสีกรม/ทอง", "ปรับฟอนต์ให้คมชัดขึ้น"],
+            licenses: ["personal"], // ฟรี/ส่วนตัวเท่านั้น
+          },
+        ],
+
+        /* ---------- Computed ---------- */
+        get filtered() {
+          const q = this.filters.q.trim().toLowerCase();
+          return this.products.filter((p) => {
+            const matchQ =
+              q === "" ||
+              [p.name, p.description, p.category].some((v) =>
+                String(v).toLowerCase().includes(q)
+              );
+            const matchCat =
+              this.filters.category === "all" ||
+              p.category === this.filters.category;
+            const matchFree = !this.showOnlyFree || p.price === 0;
+            const matchSale =
+              !this.showOnlyOnSale || (p.salePrice && p.salePrice < p.price);
+            return matchQ && matchCat && matchFree && matchSale;
+          });
+        },
+        get totalPages() {
+          return Math.max(1, Math.ceil(this.filtered.length / this.pageSize));
+        },
+        get paginated() {
+          const start = (this.page - 1) * this.pageSize;
+          return this.filtered.slice(start, start + this.pageSize);
+        },
+        get pageNumbers() {
+          const total = this.totalPages,
+            cur = this.page,
+            pages = new Set([1, total]);
+          for (let p = cur - 2; p <= cur + 2; p++)
+            if (p >= 1 && p <= total) pages.add(p);
+          return Array.from(pages).sort((a, b) => a - b);
+        },
+        get pageSummary() {
+          if (this.filtered.length === 0) return "";
+          const start = (this.page - 1) * this.pageSize + 1;
+          const end = Math.min(this.page * this.pageSize, this.filtered.length);
+          return `ผลลัพธ์ ${start}–${end} จาก ${this.filtered.length}`;
+        },
+        get isCheckoutValid() {
+          return (
+            this.cart.length > 0 &&
+            this.checkoutForm.name.trim().length > 0 &&
+            this.isValidEmail(this.checkoutForm.email)
+          );
+        },
+
+        /* ---------- Pagination actions ---------- */
+        goPage(p) {
+          this.page = Math.max(1, Math.min(this.totalPages, p));
+        },
+        prevPage() {
+          this.goPage(this.page - 1);
+        },
+        nextPage() {
+          this.goPage(this.page + 1);
+        },
+
+        syncActiveLicenseToCart() {
+          if (!this.active) return;
+          const inCart = this.cart.find((c) => c.slug === this.active.slug);
+          if (inCart) inCart.license = this.license;
+        },
+
+        /* ---------- Coupon ---------- */
+        applyCoupon() {
+          this.coupon.error = "";
+          const code = (this.coupon.code || "").toUpperCase();
+          if (!code) {
+            this.coupon.error = "กรุณากรอกรหัสคูปอง";
+            return;
+          }
+          if (code === "OLE10") {
+            if (this.subtotal() <= 0) {
+              this.coupon.error = "ยอดสั่งซื้อไม่เข้าเงื่อนไขการใช้คูปอง";
+              return;
+            }
+            this.coupon.applied = true;
+            this.coupon.codeApplied = code;
+            this.coupon.code = code;
+          } else {
+            this.coupon.applied = false;
+            this.coupon.codeApplied = "";
+            this.coupon.error = "ไม่พบคูปองนี้";
+          }
+        },
+        removeCoupon() {
+          this.coupon = {
+            code: "",
+            applied: false,
+            codeApplied: "",
+            error: "",
+          };
+        },
+
+        /* ---------- Cart ---------- */
+        cart: [],
+        openCart() {
+          this.cartOpen = true;
+        },
+        addToCart(item) {
+          const exists = this.cart.find((c) => c.slug === item.slug);
+          const lic = this.getItemLicense(item);
+          if (!exists) {
+            this.cart.push({ ...item, license: lic });
+          } else {
+            exists.license = lic;
+          }
+        },
+        removeFromCart(i) {
+          this.cart.splice(i, 1);
+          if (this.cart.length === 0) {
+            this.removeCoupon();
+            this.checkoutForm.fileSlip = null;
+            this.checkoutOpen = false;
+            this.cartOpen = false;
+          }
+        },
+        isInCart(item) {
+          return this.cart.some((c) => c.slug === item.slug);
+        },
+        removeFromCartBySlug(slug) {
+          this.cart = this.cart.filter((c) => c.slug !== slug);
+          if (this.cart.length === 0) {
+            this.removeCoupon();
+            this.checkoutForm.fileSlip = null;
+            this.checkoutOpen = false;
+            this.cartOpen = false;
+          }
+        },
+
+        /* ---------- Totals ---------- */
+        subtotal() {
+          return this.cart.reduce(
+            (sum, it) =>
+              sum + this.priceForLicense(it, it.license ?? "personal"),
+            0
+          );
+        },
+        discountAmount() {
+          if (!this.coupon.applied) return 0;
+          if (this.coupon.codeApplied === "OLE10")
+            return Math.round(this.subtotal() * 0.1);
+          return 0;
+        },
+        cartTotal() {
+          const total = Math.max(this.subtotal() - this.discountAmount(), 0);
+          return this.formatBaht(total);
+        },
+
+        /* ---------- Checkout ---------- */
+        openCheckout() {
+          if (this.cart.length === 0) {
+            alert("ตะกร้ายังว่างอยู่");
+            return;
+          }
+          this.checkoutOpen = true;
+        },
+        handleSlip(file) {
+          if (!file) return;
+          const max = 10 * 1024 * 1024;
+          if (file.size > max) {
+            alert("ไฟล์ใหญ่เกินไป (เกิน 10MB)");
+            return;
+          }
+          this.checkoutForm.fileSlip = file;
+          if (file.type.startsWith("image/")) {
+            this.slipPreviewUrl && URL.revokeObjectURL(this.slipPreviewUrl);
+            this.slipPreviewUrl = URL.createObjectURL(file);
+          } else {
+            this.slipPreviewUrl && URL.revokeObjectURL(this.slipPreviewUrl);
+            this.slipPreviewUrl = "";
+          }
+        },
+        removeSlip() {
+          this.checkoutForm.fileSlip = null;
+          if (this.slipPreviewUrl) {
+            URL.revokeObjectURL(this.slipPreviewUrl);
+            this.slipPreviewUrl = "";
+          }
+          if (this.$refs.fileSlip) this.$refs.fileSlip.value = "";
+        },
+        isValidEmail(v) {
+          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+        },
+        async submitCheckout() {
+          if (!this.isCheckoutValid) return;
+          const formData = new FormData();
+          formData.append("name", this.checkoutForm.name);
+          formData.append("phone", this.checkoutForm.phone || "");
+          formData.append("email", this.checkoutForm.email);
+          formData.append(
+            "items",
+            JSON.stringify(
+              this.cart.map((it) => ({
+                slug: it.slug,
+                name: it.name,
+                license: it.license || this.license,
+                price: this.priceWithLicense(it),
+              }))
+            )
+          );
+          formData.append("subtotal", this.subtotal());
+          formData.append("discount", this.discountAmount());
+          formData.append(
+            "total",
+            Math.max(this.subtotal() - this.discountAmount(), 0)
+          );
+          if (this.coupon.applied)
+            formData.append("coupon", this.coupon.codeApplied);
+          if (this.checkoutForm.fileSlip)
+            formData.append("fileSlip", this.checkoutForm.fileSlip);
+          // TODO: ส่งไป backend ของคุณด้วย fetch
+          // await fetch('/api/checkout', { method: 'POST', body: formData })
+          alert(
+            "ส่งคำสั่งซื้อเรียบร้อย! (จำลอง)\nเราจะส่งลิงก์ดาวน์โหลดไปที่อีเมลของคุณ"
+          );
+          this.cart = [];
+          this.removeCoupon();
+          this.cartOpen = false;
+          this.checkoutOpen = false;
+          this.checkoutForm = {
+            name: "",
+            phone: "",
+            email: "",
+            fileSlip: null,
+          };
+          this.removeSlip();
+        },
+
+        /* ---------- Detail / Buy Now ---------- */
+        openDetail(item) {
+          this.active = item;
+          this.license = this.getItemLicense(item);
+          this.detailOpen = true;
+        },
+
+        /* ---------- Download ---------- */
+        download(item) {
+          const fakeUrl = `./downloads/${item.slug}.zip`;
+          window.location.href = fakeUrl;
+        },
+
+        /* ---------- Price helpers (respect allowed license + multipliers) ---------- */
+        basePrice(item) {
+          return item.salePrice && item.salePrice < item.price
+            ? item.salePrice
+            : item.price;
+        },
+        priceWithLicense(item) {
+          const base = this.basePrice(item);
+          const lic = this.getSafeLicense(item, item.license || this.license);
+          const mult = this.LICENSE_PRICING_MAP[lic] ?? 1;
+          return Math.round(base * mult);
+        },
+        priceForLicense(item, lic) {
+          const use = this.getSafeLicense(item, lic);
+          const mult = this.LICENSE_PRICING_MAP[use] ?? 1;
+          return Math.round(this.basePrice(item) * mult);
+        },
+        displayPrice(item) {
+          const lic = this.getSafeLicense(item, this.getItemLicense(item));
+          const mult = this.LICENSE_PRICING_MAP[lic] ?? 1;
+          return (
+            "฿" +
+            Intl.NumberFormat("th-TH").format(
+              Math.round(this.basePrice(item) * mult)
+            )
+          );
+        },
+        displayPriceWithSelected(item) {
+          return this.formatBaht(this.priceForLicense(item, this.license));
+        },
+
+        /* ---------- Utils ---------- */
+        formatDate(d) {
+          try {
+            return new Date(d).toLocaleDateString("th-TH");
+          } catch {
+            return d;
+          }
+        },
+        formatBaht(n) {
+          return "฿" + Intl.NumberFormat("th-TH").format(n);
+        },
+
+        /* ---------- Init ---------- */
+        init() {
+          // sync license in detail drawer to cart
+          this.$watch("license", () => {
+            if (this.detailOpen && this.active) this.syncActiveLicenseToCart();
+          });
+
+          // reset ไปหน้าแรกเมื่อ filter เปลี่ยน
+          this.$watch("filters.q", () => {
+            this.page = 1;
+          });
+          this.$watch("filters.category", () => {
+            this.page = 1;
+          });
+          this.$watch("showOnlyFree", () => {
+            this.page = 1;
+          });
+          this.$watch("showOnlyOnSale", () => {
+            this.page = 1;
+          });
+          this.$watch("pageSize", () => {
+            this.page = 1;
+          });
+
+          // restore user & setup Google
+          this.loadUser();
+          this.setupGoogle();
+        },
+      });
+    </script>
+  </body>
+</html>

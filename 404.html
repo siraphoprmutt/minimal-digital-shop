@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>404 — Page Not Found</title>
+    <meta
+      name="description"
+      content="Page not found — Siraphop Nonpala (OLE)"
+    />
+    <link rel="icon" href="./assets/favicon/favicon.ico" />
+
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tailwind.config.js"></script>
+  </head>
+  <body
+    class="min-h-screen bg-neutral-50 text-neutral-900 antialiased flex flex-col"
+  >
+    <!-- เนื้อหากลางจอ -->
+    <main
+      class="flex flex-1 flex-col items-center justify-center px-6 text-center"
+    >
+      <img
+        src="./assets/images/logo.png"
+        alt="OLE logo"
+        class="mb-6 h-16 w-16 rounded-full ring-2 ring-brand/20"
+      />
+      <h1 class="text-6xl font-bold text-brand">404</h1>
+      <p class="mt-4 text-lg text-neutral-700">ขออภัย ไม่พบหน้าที่คุณต้องการ</p>
+      <a
+        href="/"
+        class="mt-6 inline-block rounded-lg bg-brand px-5 py-2 text-white shadow hover:bg-brand-600"
+      >
+        กลับหน้าแรก
+      </a>
+    </main>
+
+    <!-- Footer แบบเดียวกับ index.html -->
+    <footer
+      class="border-t border-neutral-200 pt-6 pb-6 text-center text-xs text-neutral-500"
+    >
+      © <span id="y"></span> Siraphop Nonpala · Made with TailwindCSS
+    </footer>
+
+    <script src="index.js"></script>
+  </body>
+</html>
